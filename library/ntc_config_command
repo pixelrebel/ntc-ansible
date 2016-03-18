@@ -54,6 +54,11 @@ options:
         required: true
         default: null
         choices: []
+    delay_factor:
+        description:
+            - Delay between config commands (float)
+        required: false
+        default: 0.1
     host:
         description:
             - IP Address or hostname (resolvable by Ansible control host)
@@ -151,6 +156,7 @@ def main():
             platform=dict(required=True),
             commands=dict(required=False),
             commands_file=dict(required=False),
+            delay_factor=dict(required=False, default=0.1),
             host=dict(required=False),
             port=dict(default=22, required=False),
             username=dict(required=False, type='str'),
@@ -170,6 +176,7 @@ def main():
     device_type = platform.split('-')[0]
     commands = module.params['commands']
     commands_file = module.params['commands_file']
+    delay_factor = module.params['delay_factor']
     username = module.params['username']
     password = module.params['password']
     secret = module.params['secret']
@@ -199,7 +206,7 @@ def main():
             device.enable()
 
         if commands:
-            output = device.send_config_set(commands)
+            output = device.send_config_set(commands, delay_factor=delay_factor)
 
         try:
             if commands_file:
